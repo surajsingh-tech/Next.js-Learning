@@ -1,29 +1,18 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { prisma } from "@/lib/prisma";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import * as actions from "@/actions";
+import { useActionState } from "react";
 
 export default function CreatePageSnippets() {
-  const createSnippetsHandler = async (formData: FormData) => {
-    "use server"; // use server directive
-    const title = formData.get("title") as string;
-    const code = formData.get("code") as string;
-
-    const snippet = await prisma.snippet.create({
-      data: {
-        title,
-        code,
-      },
-    });
-    console.log("snippet is ", snippet);
-    redirect("/");
-  };
+  const [state, actionFun] = useActionState(actions.createSnippet, {
+    message: "",
+  });
 
   return (
-    <form action={createSnippetsHandler}>
+    <form action={actionFun}>
       <div className="m-2">
         <Label className="m-2" htmlFor="">
           Title :{" "}
@@ -36,6 +25,9 @@ export default function CreatePageSnippets() {
         </Label>
         <Textarea className="w-[50%]" name="code" />
       </div>
+      {state.message && (
+        <div className="p-2 bg-red-600 border-2 my-4 text-white font-bold">{state.message}</div>
+      )}
       <Button type="submit">New</Button>{" "}
     </form>
   );
