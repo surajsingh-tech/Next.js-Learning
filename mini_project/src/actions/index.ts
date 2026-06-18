@@ -13,6 +13,7 @@ export const saveSnippet = async (id: number, code: string) => {
       code,
     },
   });
+  revalidatePath(`/snippets/${id}`);
   redirect(`/snippets/${id}`);
 };
 
