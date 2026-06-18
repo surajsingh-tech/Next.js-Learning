@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export const saveSnippet = async (id: number, code: string) => {
   await prisma.snippet.update({
@@ -21,6 +22,7 @@ export const deleteSnippet = async (id: number) => {
       id,
     },
   });
+  revalidatePath("/");
   redirect(`/`);
 };
 
@@ -46,8 +48,11 @@ export const createSnippet = async (
         code,
       },
     });
-  } catch (error: any) {
-    return { message: error.message };
+    revalidatePath("/");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { message: error.message };
+    } else return { message: "Internal Server error" };
   }
   redirect("/");
 };

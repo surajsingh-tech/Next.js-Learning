@@ -63,3 +63,11 @@ export default async function SnippetDetailsPage({
     </div>
   );
 }
+
+export const generateStaticParams = async () => {
+  const snippets = await prisma.snippet.findMany();
+
+  return snippets.map((snip) => ({
+    id: snip.id.toString(),
+  }));
+};

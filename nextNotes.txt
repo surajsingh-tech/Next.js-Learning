@@ -1,0 +1,54 @@
+# Next.js Caching Types with Syntax & Examples
+
+## 1. Request Memoization
+Definition: एक ही render cycle में identical fetch() calls को deduplicate करता है।
+Syntax: कोई special export नहीं, यह default behavior है।
+Example:
+```ts
+const data1 = await fetch("https://api.example.com/users");
+const data2 = await fetch("https://api.example.com/users");
+// दोनों calls deduplicate होकर केवल एक बार network request होगी
+
+2. Data Cache
+Definition: Server-side persistent cache जो fetch() results को disk पर store करता है।
+Syntax:
+export const revalidate = 60; // 60 seconds बाद revalidate होगा
+
+eX - const posts = await fetch("https://api.example.com/posts", {
+  next: { revalidate: 60 }
+});
+
+3. Full Route Cache
+Definition: पूरे route का HTML + React Server Component payload disk पर cache होता है।
+Syntax:
+export const dynamic = "force-dynamic"; // caching disable
+export const revalidate = 0;            // ISR disable
+
+EX - export default async function Page() {
+  const posts = await fetch("https://api.example.com/posts");
+  return <div>{/* render posts */}</div>;
+}
+
+4. Router Cache
+Definition: Client-side browser cache जो visited route segments को store करता है।
+Syntax: कोई export नहीं, यह Next.js router का default behavior है।
+Example:
+
+User /home से /about जाता है → वापस /home आने पर cached version तुरंत दिखेगा।
+
+// Disable caching completely (always fresh render)
+export const dynamic = "force-dynamic";
+
+// Disable ISR (always fetch fresh data)
+export const revalidate = 0;
+
+// Enable ISR with 60 seconds revalidation
+export const revalidate = 60;
+
+// Force no cache for fetch
+await fetch("https://api.example.com/data", { cache: "no-store" });
+
+// Cache with revalidation tag
+await fetch("https://api.example.com/data", { next: { tags: ["posts"] } });
+
+
